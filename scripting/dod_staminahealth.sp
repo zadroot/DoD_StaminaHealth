@@ -2,7 +2,7 @@
 * DoD:S Stamina Health by Root
 *
 * Description:
-*   Sets player's stamina reflect to multiplied player's health.
+*   Sets player's stamina reflect to multiplied health.
 *
 * Version 1.0
 * Changelog & more info at http://goo.gl/4nKhJ
@@ -20,11 +20,11 @@
 
 // ====[ PLUGIN ]============================================================
 new	Handle:SH_Enabled = INVALID_HANDLE, Handle:SH_Multipler = INVALID_HANDLE;
-public Plugin:myinfo =
+public Plugin:myinfo  =
 {
 	name        = PLUGIN_NAME,
 	author      = "Root",
-	description = "Sets player's stamina reflect to a multiplied player's health",
+	description = "Sets player's stamina reflect to a multiplied health",
 	version     = PLUGIN_VERSION,
 	url         = "http://dodsplugins.com/"
 };
@@ -38,8 +38,8 @@ public OnPluginStart()
 {
 	// Create ConVars
 	CreateConVar("dod_staminahealth_version", PLUGIN_VERSION, PLUGIN_NAME, FCVAR_NOTIFY|FCVAR_DONTRECORD);
-	SH_Enabled   = CreateConVar("dod_staminahealth_enabled",   "1",   "Whether or not enable Stamina Health plugin",           FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	SH_Multipler = CreateConVar("dod_staminahealth_multipler", "1.0", "Sets the multipler for player health to set a stamina", FCVAR_PLUGIN, true, 1.0);
+	SH_Enabled   = CreateConVar("dod_staminahealth_enabled",   "1",   "Whether or not set stamina reflect to multiplied health",   FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	SH_Multipler = CreateConVar("dod_staminahealth_multipler", "1.0", "Determines a multipler for player health to set a stamina", FCVAR_PLUGIN, true, 1.0);
 
 	// Hook changes only for main ConVar
 	HookConVarChange(SH_Enabled, OnPluginToggle);
@@ -121,7 +121,7 @@ public PostThinkPost(client)
 		new Float:stamina   = GetEntPropFloat(client, Prop_Send, "m_flStamina");
 
 		// If stamina is more than multiplied health
-		if (stamina > health * multipler)
+		if (stamina > FloatMul(health, multipler))
 		{
 			// Correct player stamina
 			SetEntPropFloat(client, Prop_Send, "m_flStamina", FloatMul(health, multipler));

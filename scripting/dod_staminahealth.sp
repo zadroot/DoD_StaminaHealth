@@ -8,8 +8,6 @@
 * Changelog & more info at http://goo.gl/4nKhJ
 */
 
-#pragma semicolon 1
-
 // ====[ INCLUDES ]==========================================================
 #include <sdkhooks>
 #include <sdktools_sound>
@@ -27,7 +25,7 @@ public Plugin:myinfo  =
 	description = "Sets player's stamina reflect to a multiplied health",
 	version     = PLUGIN_VERSION,
 	url         = "http://dodsplugins.com/"
-};
+}
 
 
 /* OnPluginStart()
@@ -36,12 +34,12 @@ public Plugin:myinfo  =
  * -------------------------------------------------------------------------- */
 public OnPluginStart()
 {
-	// Create ConVars
+	// Create plugin's console variables
 	CreateConVar("dod_staminahealth_version", PLUGIN_VERSION, PLUGIN_NAME, FCVAR_NOTIFY|FCVAR_DONTRECORD);
 	SH_Enabled   = CreateConVar("dod_staminahealth_enabled",   "1",   "Whether or not set stamina reflect to multiplied health",   FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	SH_Multipler = CreateConVar("dod_staminahealth_multipler", "1.0", "Determines a multipler for player health to set a stamina", FCVAR_PLUGIN, true, 1.0);
 
-	// Hook changes only for main ConVar
+	// Hook changes only for main variable
 	HookConVarChange(SH_Enabled, OnPluginToggle);
 
 	// Simulates late load for a plugin
@@ -95,7 +93,8 @@ public OnClientPutInServer(client)
  * -------------------------------------------------------------------------- */
 public OnTakeDamagePost(victim, attacker, inflictor, Float:damage, damagetype)
 {
-	if (victim && victim <= MaxClients)
+	// Make sure victim is okay
+	if (1 <= victim <= MaxClients)
 	{
 		// If player is having less than 34 health (it's when stamina is getting red)
 		if (GetClientHealth(victim) * GetConVarInt(SH_Multipler) < 34)
@@ -113,15 +112,14 @@ public OnTakeDamagePost(victim, attacker, inflictor, Float:damage, damagetype)
 public PostThinkPost(client)
 {
 	// Make sure player is not sprinting now
-	if (!GetEntProp(client, Prop_Send, "m_bIsSprinting"))
+	if (!GetEntProp(client, Prop_Send, "m_bIsSprinting", true))
 	{
-		// Get the multipler for health, a health value (in float) and a stamina percent
+		// Get the multipler for health, real amout of health (in float) and a stamina percent
 		new Float:multipler = GetConVarFloat(SH_Multipler);
 		new Float:health    = float(GetClientHealth(client));
-		new Float:stamina   = GetEntPropFloat(client, Prop_Send, "m_flStamina");
 
 		// If stamina is more than multiplied health
-		if (stamina > FloatMul(health, multipler))
+		if (GetEntPropFloat(client, Prop_Send, "m_flStamina") > FloatMul(health, multipler))
 		{
 			// Correct player stamina
 			SetEntPropFloat(client, Prop_Send, "m_flStamina", FloatMul(health, multipler));

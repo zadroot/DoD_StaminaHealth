@@ -55,6 +55,7 @@ public OnPluginToggle(Handle:convar, const String:oldValue[], const String:newVa
 	// Loop through all valid clients
 	for (new i = 1; i <= MaxClients; i++)
 	{
+		// Ignore all not yet connected/in game players
 		if (!IsClientInGame(i)) continue;
 
 		// Get the new changed value
@@ -115,14 +116,13 @@ public PostThinkPost(client)
 	if (!GetEntProp(client, Prop_Send, "m_bIsSprinting", true))
 	{
 		// Get the multipler for health, real amout of health (in float) and a stamina percent
-		new Float:multipler = GetConVarFloat(SH_Multipler);
-		new Float:health    = float(GetClientHealth(client));
+		new Float:multipler = FloatMul(GetConVarFloat(SH_Multipler), float(GetClientHealth(client)));
 
 		// If stamina is more than multiplied health
-		if (GetEntPropFloat(client, Prop_Send, "m_flStamina") > FloatMul(health, multipler))
+		if (GetEntPropFloat(client, Prop_Send, "m_flStamina") > multipler)
 		{
 			// Correct player stamina
-			SetEntPropFloat(client, Prop_Send, "m_flStamina", FloatMul(health, multipler));
+			SetEntPropFloat(client, Prop_Send, "m_flStamina", multipler);
 		}
 	}
 }

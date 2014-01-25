@@ -52,10 +52,10 @@ public OnPluginStart()
  * -------------------------------------------------------------------------- */
 public OnPluginToggle(Handle:convar, const String:oldValue[], const String:newValue[])
 {
-	// Loop through all valid clients
+	// Loop through all clients
 	for (new i = 1; i <= MaxClients; i++)
 	{
-		// Ignore all not yet connected/in game players
+		// Ignore all not yet connected or ingame players
 		if (!IsClientInGame(i)) continue;
 
 		// Get the new changed value
@@ -83,9 +83,11 @@ public OnPluginToggle(Handle:convar, const String:oldValue[], const String:newVa
  * -------------------------------------------------------------------------- */
 public OnClientPutInServer(client)
 {
-	// Hook all needed callbacks for a client
-	SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
-	SDKHook(client, SDKHook_PostThinkPost,    PostThinkPost);
+	if (GetConVarBool(SH_Enabled))
+	{
+		SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
+		SDKHook(client, SDKHook_PostThinkPost,    PostThinkPost);
+	}
 }
 
 /* OnTakeDamagePost()
@@ -113,7 +115,7 @@ public OnTakeDamagePost(victim, attacker, inflictor, Float:damage, damagetype)
 public PostThinkPost(client)
 {
 	// Make sure player is not sprinting now
-	if (!GetEntProp(client, Prop_Send, "m_bIsSprinting", true))
+	if (!bool:GetEntProp(client, Prop_Send, "m_bIsSprinting", true))
 	{
 		// Get the multipler for health, real amout of health (in float) and a stamina percent
 		new Float:multipler = FloatMul(GetConVarFloat(SH_Multipler), float(GetClientHealth(client)));
